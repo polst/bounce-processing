@@ -1,7 +1,7 @@
 {
   "type": "library",
   "version": "1.0.0",
-  "name": "vda/bounce-classifier",
+  "name": "bounce-processing",
   "description": "bounce email classification tools",
   "config": {
     "secure-http": false

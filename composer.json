@@ -23,5 +23,5 @@
   "autoload": {
     "psr-4": {"Vda\\BounceProcessing\\": "src/"}
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "beta"
 }

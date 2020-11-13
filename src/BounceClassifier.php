@@ -44,7 +44,6 @@ class BounceClassifier implements IBounceClassifier
                 '550 5.5.0 Requested action not taken: mailbox unavailable',
                 '550 .+?unknown user account',
                 '55\d:? Recipient address rejected: (Inactive user|User unknown)',
-                '550-5.1.1 The email account that you tried to reach does not exist',
                 '550 5.1.1 unknown or illegal alias',
                 '550 5.7.1 No such user',
                 '550 Requested action not taken: mailbox unavailable',
@@ -95,7 +94,6 @@ class BounceClassifier implements IBounceClassifier
                 '550 5.2.1 The email account that you tried to reach is disabled',
                 '55\d 5\.\d\.\d .+?: Recipient address rejected',
                 '550-5.2.1 Mailbox unavailable',
-                '550-5.1.1 The email account that you tried to reach does not exist',
                 '550 5.1.1.+?Mailbox is not available',
                 '550 5.0.0 .+? This is user have no mail',
                 '550 sorry, no mailbox here by that name',
@@ -705,7 +703,7 @@ class BounceClassifier implements IBounceClassifier
                 foreach ($categories as $categoryName => $patternList) {
                     foreach ($patternList as $pattern) {
                         $pattern = preg_replace('!\s+!', '\s+', $pattern);
-                        $pattern = preg_replace('!\.[^+*?\]({\\\]!', '\.', $pattern);
+                        $pattern = preg_replace('!(\.[^+*?\]({\\\])!', '\\\$1', $pattern);
                         $this->bounceRules[$bounceType][$categoryName][] = "!{$pattern}!is";
                     }
                 }
@@ -723,6 +721,7 @@ class BounceClassifier implements IBounceClassifier
                 $res[$email] = null;
             }
         }
+
         return array_diff(array_keys($res), $this->excludeEmails);
     }
 
@@ -740,7 +739,7 @@ class BounceClassifier implements IBounceClassifier
 
     public function getEmailFromHeaders(string $type, string $headers): ?string
     {
-        if (preg_match("!^{$type}: .*?<?(?<email>([a-z\d_]|[a-z\d_][a-z\d._\-]*[a-z\d_\-]{1})@([a-z\d]{1}[a-z\d\-]*\.)+[a-z]{2,})>?!mi", $headers, $m)) {
+        if (preg_match("!^{$type}: .*?<?(?<email>([a-z\d_]|[a-z\d_][a-z\d._\-]*[a-z\d_\-])@([a-z\d][a-z\d\-]*\.)+[a-z]{2,})>?!mi", $headers, $m)) {
             return $m['email'];
         }
 

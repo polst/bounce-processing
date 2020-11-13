@@ -19,9 +19,7 @@
   ],
   "require": {
     "php": ">=7.3",
-    "vda/log": "0.2.*",
-    "ext-json": "*",
-    "ext-imap": "*"
+    "vda/log": "0.2.*"
   },
   "autoload": {
     "psr-4": {"Vda\\BounceProcessing\\": "src/"}

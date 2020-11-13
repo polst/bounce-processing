@@ -1,0 +1,27 @@
+{
+  "type": "library",
+  "name": "vda/bounce-classifier",
+  "description": "bounce email classification tools",
+  "config": {
+    "secure-http": false
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://composer.vda-team.com/",
+      "options": {
+        "ssl": {
+          "verify_peer": false
+        }
+      }
+    }
+  ],
+  "require": {
+    "php": ">=7.3",
+    "vda/log": "0.2.*"
+  },
+  "autoload": {
+    "psr-4": {"Vda\\BounceProcessing\\": "src/"}
+  },
+  "minimum-stability": "dev"
+}

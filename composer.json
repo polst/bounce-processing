@@ -1,7 +1,7 @@
 {
   "type": "library",
   "version": "1.0.0",
-  "name": "bounce-processing",
+  "name": "vda/bounce-processing",
   "description": "bounce email classification tools",
   "config": {
     "secure-http": false
@@ -25,6 +25,5 @@
   },
   "autoload": {
     "psr-4": {"Vda\\BounceProcessing\\": "src/"}
-  },
-  "minimum-stability": "stable"
+  }
 }

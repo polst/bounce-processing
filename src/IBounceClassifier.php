@@ -12,11 +12,16 @@ interface IBounceClassifier
     /**
      * @param string $emailHeaders
      * @param string $emailBody
-     * @return array array of [email => bounceType] $emailBody is a bounce, empty array otherwise.
+     * @return array containing the following keys:
+     * - emails: array of emails found in the body
+     * - bounceType: assigned bounce type
+     * - category: pattern category
+     * - pattern: matched pattern
+     * - reason: original string in the email that matched the pattern
      */
-    public function classifyBounce(string $emailHeaders, string $emailBody): array;
+    function classifyBounce(string $emailHeaders, string $emailBody): array;
 
-    public function getSubject(string $headers): string;
+    function getSubject(string $headers): string;
 
-    public function getEmailFromHeaders(string $type, string $headers): ?string;
+    function getEmailFromHeaders(string $type, string $headers): ?string;
 }

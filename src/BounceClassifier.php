@@ -118,6 +118,7 @@ class BounceClassifier implements IBounceClassifier
                 '550 5.1.1.+?Recipient address rejected: user not found',
                 '550 Requested action not taken: mailbox unavailable',
                 'mailbox\. Local mailbox.+?is unavailable\: (user is terminated|user not found|account is disabled)',
+                'Host or domain name not found. Name service error for name',
             ],
 
             'inactive' => [

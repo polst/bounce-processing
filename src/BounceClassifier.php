@@ -119,6 +119,7 @@ class BounceClassifier implements IBounceClassifier
                 '550 Requested action not taken: mailbox unavailable',
                 'mailbox\. Local mailbox.+?is unavailable\: (user is terminated|user not found|account is disabled)',
                 'Host or domain name not found. Name service error for name',
+                '552 \d Requested mail action aborted, mailbox not found', // yahoo
             ],
 
             'inactive' => [

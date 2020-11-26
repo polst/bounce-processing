@@ -554,6 +554,7 @@ class BounceClassifier implements IBounceClassifier
                 '553 5.7.1 Sensitive words detected',
                 '554 delivery error: dd Requested mail action aborted',
                 '550 5.7.1 [^\s]+ Message rejected due to local policy',
+                '550-domain [^\s]+ suffer screening issues contact',
             ],
 
             'mailloop' => [

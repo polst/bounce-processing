@@ -329,23 +329,20 @@ class BounceClassifier implements IBounceClassifier
 
             'blacklisted' => [
 
-                '550 5.7.1 Mailbox unavailable. Your IP address [^\s]+ is blacklisted using',
-                '554 5.7.1 Service unavailable; Client host [^\s]+ blocked using',
+                '550 5.7.1 Mailbox unavailable. Your IP address [^\s]+ is blacklisted using [^\s]+',
+                '554 5.7.1 Service unavailable; Client host [^\s]+ blocked using [^\s]+',
 
                 // common spamlists
                 '(s5h|barracudacentral|spamcop|blacklist.woody|bogons.cymru|abuseat|abuse|wpbl|uceprotect|dnsbl.dronebl|'.
                     'sorbs|spfbl|duinv.aupads|spamrats|backscatterer|dnsbl.manitu|orvedb.aupads|spamhaus|bl.gweep|psbl.surriel|'.
                     'relays.nether|dnsbl.anonmails|spambot.bls.digibase|spamrbl.imp.ch|ubl.lashback|ubl.unsubscore|virus.rbl|'.
-                    'wormrbl.imp|z.mailspike|csi.cloudmark)\.(net|com|info|ch|org|ca|jp|de)',
+                    'wormrbl.imp|z.mailspike|csi.cloudmark|urbl.hostedemail)\.(net|com|info|ch|org|ca|jp|de)',
 
                 '553 5.3.0 [^\s]+ DNSBL:ATTRBL 521',
                 '554 .+? IP: [\d\.]+, You are not allowed to send (us )?mail',
                 'Mail Refused - IP Address [^\s]+ Blacklisted',
                 '554 5.7.1 ACL dns_rbl; Client host [^\s]+ blocked using [^\s]+ Senderscore',
 
-                // from last problem 30 oct 2020
-                'Client host \[[\d\.]\]+ blocked using urbl.hostedemail.com',
-                
                 // mail.com
                 '554-No SMTP service 554-IP address is black listed',
             ],
@@ -354,6 +351,7 @@ class BounceClassifier implements IBounceClassifier
 
                 // [\d\.-]+ => 421-4.7.28
                 'Our system has detected an unusual rate of [\d\.-]+ unsolicited mail originating from your IP address. To protect our [\d\.-]+ users from spam',
+                'Our system has detected that this message is 550-5.7.1 likely unsolicited mail. To reduce the amount of spam sent to Gmail, 550-5.7.1 this message has been blocked',
             ],
 
             'blacklisted:hotmail' => [
@@ -999,7 +997,7 @@ class BounceClassifier implements IBounceClassifier
     public function getSubject(string $headers): string
     {
         $subject = '';
-        if (preg_match('!^(.+?\r?\n)?Subject: (?<subject>.+?)(?=(\r?\n[^\r\n]+:|\r?\n\r?\n))!is', $headers, $m)) {
+        if (preg_match('![\r\n]\s*Subject: (?<subject>.+?)(?=(\r?\n[^\r\n]+:|\r?\n\r?\n))!is', $headers, $m)) {
             foreach (imap_mime_header_decode($m['subject']) as $s) {
                 $subject .= $s->charset != 'default' ? iconv($s->charset, 'utf-8', $s->text) : $s->text;
             }
@@ -1009,7 +1007,7 @@ class BounceClassifier implements IBounceClassifier
 
     public function getEmailFromHeaders(string $type, string $headers): ?string
     {
-        if (preg_match("![\r\n]{$type}:\s*.*?<?(?<email>([a-z\d_]|[a-z\d_][a-z\d._\-]*[a-z\d_\-])@([a-z\d][a-z\d\-]*\.)+[a-z]{2,})>?!is", $headers, $m)) {
+        if (preg_match("![\r\n]\s*{$type}:\s*.*?<?(?<email>([a-z\d_]|[a-z\d_][a-z\d._\-]*[a-z\d_\-])@([a-z\d][a-z\d\-]*\.)+[a-z]{2,})>?!is", $headers, $m)) {
             return $m['email'];
         }
 

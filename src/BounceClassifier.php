@@ -167,6 +167,7 @@ class BounceClassifier implements IBounceClassifier
                 '550 I cannot deliver mail for',
                 '<[^\s]+>: This user doesn\'t have a yahoo.com account',
                 '5.1.1 Diagnostic-Code: X-Postfix; unknown user:',
+                '550 5.4.1 Recipient address rejected: Access denied',
                 '550 [^\s]+ 5.4.1 [^\s]+: Recipient address rejected: Access denied',
                 '550 SITEGROUND: No Such mailbox here',
                 '521 No Redirect Entry for this address',
@@ -179,6 +180,11 @@ class BounceClassifier implements IBounceClassifier
                 '550 mailbox [^\s]+ unavailable',
                 'This user doesn\'t have a ymail.com account',
                 '5.1.1 <[^\s]+> is not a valid mailbox',
+                '550 This FakeMail address does not exist or Owner of it deleted his Telegram account',
+                '550 Nessun utente simile in questo indirizzo',
+                '550 5.1.1 <[^\s]+> invalid address',
+                '5.1.0 - Unknown address error',
+                '501 Syntax error in parameters or arguments tnmpmscs',
             ],
 
             'inactive' => [
@@ -282,6 +288,7 @@ class BounceClassifier implements IBounceClassifier
                 'conversation with [^\s]+ timed out while sending end of data',
                 'lost connection with [^\s]+ while performing the (HE|EH)LO handshake',
                 'lost connection with [^\s]+ while sending RCPT TO',
+                'lost connection with [^\s]+ while sending MAIL FROM',
                 '451 4.2.1 mailbox temporarily disabled',
                 '452 4.1.1 [^\s]+ Account temporarily unavailable. Try again later',
                 'temporary failure. Command output:',
@@ -298,6 +305,11 @@ class BounceClassifier implements IBounceClassifier
                 'I\'m afraid I wasn\'t able to deliver the following message. This is a permanent error; I\'ve given up. Sorry it didn\'t work out',
                 'Requested mail action aborted I\'m not going to try again; this message has been in the queue too long',
                 '421 4.3.2 Service shutting down, Error writing to mail file: Spazio esaurito sul device at',
+                '554 Server disconnected',
+                '421 [^\s]+ Zimbra LMTP server closing connection; service busy',
+                '451 4.3.0 Could not stream address',
+                '550 4.4.7 QUEUE.Expired; message expired',
+                '450 4.3.2 Service currently unavailable',
 
                 // dns errors (!?)
                 '553 5.1.8 [^\s]+... Domain of sender address [^\s]+ does not exist',
@@ -331,6 +343,10 @@ class BounceClassifier implements IBounceClassifier
 
                 '550 5.7.1 Mailbox unavailable. Your IP address [^\s]+ is blacklisted using [^\s]+',
                 '554 5.7.1 Service unavailable; Client host [^\s]+ blocked using [^\s]+',
+                '55\d (5.7.\d )?Blocked - see https?://[a-z]+.proofpoint.com',
+                '550 5.7.\d+ Access denied, banned sending IP [^\s]+. To request removal from this list please visit ' .
+                    'https?://sender.office.com/ and follow the directions',
+                '554 Rejected due to the sending MTA\'s poor reputation. Please refer [^\s]+.',
 
                 // common spamlists
                 '(s5h|barracudacentral|spamcop|blacklist.woody|bogons.cymru|abuseat|abuse|wpbl|uceprotect|dnsbl.dronebl|'.
@@ -365,7 +381,7 @@ class BounceClassifier implements IBounceClassifier
 
                 '421 4.7.1 \[TS03\] All messages from [\d\.]+ will be permanently deferred',
                 '553 5.7.2 \[TSS09\] All messages from [\d\.]+ will be permanently deferred',
-                '421 4.7.0 \[TS01\] Messages from [\d\.]+ temporarily deferred',
+                '421 4.7.0 \[[a-z\d]+\] Messages from [\d\.]+ temporarily deferred',
                 '553 5.7.1 \[[a-z\d]{4,}\] Connections will not be accepted from [\d\.]+, because the ip is in Spamhaus\'s list',
             ],
 
@@ -553,8 +569,13 @@ class BounceClassifier implements IBounceClassifier
                 '554 Email rejected due to security policies',
                 '553 5.7.1 Sensitive words detected',
                 '554 delivery error: dd Requested mail action aborted',
-                '550 5.7.1 [^\s]+ Message rejected due to local policy',
+                '55\d 5.7.1 [^\s]+ Message rejected due to local policy',
                 '550-domain [^\s]+ suffer screening issues contact',
+                '554 5.2.0 [^\s]+: IP reputation ratelimit in effect',
+                '550 5.7.1 Body content violation: CRPDB',
+                '550-Your message to <[^\s]+> was classified as SPAM',
+                '554 We have reasons to believe this mail is SPAM',
+                '554 client\'s country is banned',
             ],
 
             'mailloop' => [
@@ -616,8 +637,10 @@ class BounceClassifier implements IBounceClassifier
                 '550 Access denied - Invalid HELO name',
                 '450-4.7.1 Client host rejected: cannot find your reverse hostname',
                 '550-5.5.1 Server [^\s]+ has an invalid PTR record',
-                '550 5.7.0 Your server IP address [^\s]+ does not have a valid reverse DNS entry',
+                '550 (5.7.\d )?Your server IP address [^\s]+ does not have a valid reverse DNS entry',
                 '450 4.7.1 <[^\s]+>: Sender address rejected: Access denied',
+                '530 5.7.1 Authentication required',
+                '550 5.7.1 Forged HELO hostname detected',
             ],
 
             'overquota' => [
@@ -667,6 +690,7 @@ class BounceClassifier implements IBounceClassifier
                 '550 RCPT TO:<[^\s]+> max message size exceeded',
                 '550 Account exceeds storage quota',
                 '552 Mailbox limit exeeded for this email address',
+                '550 5.7.1 <[^\s]+>... Mailbox size limit exceeded',
 
                 'Quota exceeded',
                 'user is over quota',
@@ -973,7 +997,7 @@ class BounceClassifier implements IBounceClassifier
                 foreach ($categories as $categoryName => $patternList) {
                     foreach ($patternList as $pattern) {
                         $pattern = preg_replace('!\s+!', '\s+', $pattern);
-                        $pattern = preg_replace('!(\.[^+*?\]({\\\])!', '\\\$1', $pattern);
+                        $pattern = preg_replace('!(\.[^+*?\]({])!', '\\\$1', $pattern);
                         $this->bounceRules[$bounceType][$categoryName][] = "!{$pattern}!is";
                     }
                 }

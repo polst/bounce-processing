@@ -7,10 +7,10 @@ use Vda\Log\ILogService;
 class BounceClassifier implements IBounceClassifier
 {
     const BOUNCE_TYPE_MNEMONICS = [
-        IBounceClassifier::TYPE_UNKNOWN => 'unknown',
-        IBounceClassifier::TYPE_SOFT    => 'soft',
-        IBounceClassifier::TYPE_HARD    => 'hard',
-        IBounceClassifier::TYPE_IGNORE  => 'ignore',
+        self::TYPE_UNKNOWN  => 'unknown',
+        self::TYPE_SOFT     => 'soft',
+        self::TYPE_HARD     => 'hard',
+        self::TYPE_IGNORE   => 'ignore',
     ];
 
     private $logger;
@@ -21,7 +21,7 @@ class BounceClassifier implements IBounceClassifier
 
         self::TYPE_HARD => [
 
-            'emaildoesntexist' => [
+            self::CATEGORY_NO_SUCH_EMAIL => [
 
                 '550 5.1.1 RESOLVER.ADR.RecipNotFound',
                 '550 5.1.10 RESOLVER.ADR.RecipientNotFound',
@@ -187,7 +187,7 @@ class BounceClassifier implements IBounceClassifier
                 '501 Syntax error in parameters or arguments tnmpmscs',
             ],
 
-            'inactive' => [
+            self::CATEGORY_INACTIVE_EMAIL => [
 
                 '550 NOACTIVITY: Sorry, no recipient activity since',
                 '550 Mailbox is frozen. See',
@@ -219,7 +219,26 @@ class BounceClassifier implements IBounceClassifier
                 'Receiver do\'nt want your email. Are You shure you have sent your Mail to the right adress',
             ],
 
-            'relayerror' => [
+            self::CATEGORY_INVALID_EMAIL => [
+                'bad address syntax',
+                'Bad destination mailbox address',
+                '501 Invalid Address',
+            ],
+
+            self::CATEGORY_CONFIG_ERROR => [
+
+                'unable to route: no mail hosts for domain',
+                'Domain [^\s]+ does not accept mail \(nullMX\)',
+                '550 We don\'t handle mail for',
+                '550 5.1.0 [a-z\d]+ dominio non valido / invalid domain',
+                '553 sorry, that domain isn\'t in my list of allowed rcpthosts',
+                '553-5.7.1 sorry, that domain isn\'t in my list of allowed rcpthosts',
+                '550 RCPT address has non-existant domain [^\s]+',
+                '550 Domain [^\s]+ has outgoing email disabled',
+                '550 sorry, this mailbox is currently disabled, try again',
+            ],
+
+            self::CATEGORY_RELAY_ERROR => [
 
                 'host [^\s]+ said: 550 Relay not permitted',
                 '\d54 \d.7.1 [^\s]+: Relay access denied',
@@ -245,30 +264,11 @@ class BounceClassifier implements IBounceClassifier
                 '550 5.7.1 <[^\s]+>... we do not relay',
                 '553 sorry, relay of mail is not allowed',
             ],
-
-            'remoteconfigerror' => [
-
-                'unable to route: no mail hosts for domain',
-                'Domain [^\s]+ does not accept mail \(nullMX\)',
-                '550 We don\'t handle mail for',
-                '550 5.1.0 [a-z\d]+ dominio non valido / invalid domain',
-                '553 sorry, that domain isn\'t in my list of allowed rcpthosts',
-                '553-5.7.1 sorry, that domain isn\'t in my list of allowed rcpthosts',
-                '550 RCPT address has non-existant domain [^\s]+',
-                '550 Domain [^\s]+ has outgoing email disabled',
-                '550 sorry, this mailbox is currently disabled, try again',
-            ],
-
-            'invalidemail' => [
-                'bad address syntax',
-                'Bad destination mailbox address',
-                '501 Invalid Address',
-            ],
         ],
 
         self::TYPE_SOFT => [
 
-            'temporaryerror' => [
+            self::CATEGORY_TEMPORARY_ERROR => [
 
                 'refused to talk to me: 452 try later',
                 'refused to talk to me: 421 [^\s]+ Service Unavailable',
@@ -339,7 +339,7 @@ class BounceClassifier implements IBounceClassifier
                 '451 [^\s]+: user unknown or mailbox full',
             ],
 
-            'blacklisted' => [
+            self::CATEGORY_BLACKLISTED => [
 
                 '550 5.7.1 Mailbox unavailable. Your IP address [^\s]+ is blacklisted using [^\s]+',
                 '554 5.7.1 Service unavailable; Client host [^\s]+ blocked using [^\s]+',
@@ -363,21 +363,21 @@ class BounceClassifier implements IBounceClassifier
                 '554-No SMTP service 554-IP address is black listed',
             ],
 
-            'blacklisted:gmail' => [
+            self::CATEGORY_BLACKLISTED . ':gmail' => [
 
                 // [\d\.-]+ => 421-4.7.28
                 'Our system has detected an unusual rate of [\d\.-]+ unsolicited mail originating from your IP address. To protect our [\d\.-]+ users from spam',
                 'Our system has detected that this message is 550-5.7.1 likely unsolicited mail. To reduce the amount of spam sent to Gmail, 550-5.7.1 this message has been blocked',
             ],
 
-            'blacklisted:hotmail' => [
+            self::CATEGORY_BLACKLISTED . ':hotmail' => [
 
                 '421 RP-001 .+? Unfortunately, some messages from [\d\.]+ weren\'t sent. Please try again. We have limits for how many messages can be sent per hour and per day',
                 '550 (OU|SC)-001 .+? Unfortunately, messages from [\d\.]+ weren\'t sent. Please contact your Internet service provider since part of their network is on our block list',
                 '550 5.7.1 Unfortunately, messages from [^\s]+ weren\'t sent. Please contact your Internet service provider since part of their network is on our block list',
             ],
 
-            'blacklisted:yahoo' => [
+            self::CATEGORY_BLACKLISTED . ':yahoo' => [
 
                 '421 4.7.1 \[TS03\] All messages from [\d\.]+ will be permanently deferred',
                 '553 5.7.2 \[TSS09\] All messages from [\d\.]+ will be permanently deferred',
@@ -385,19 +385,19 @@ class BounceClassifier implements IBounceClassifier
                 '553 5.7.1 \[[a-z\d]{4,}\] Connections will not be accepted from [\d\.]+, because the ip is in Spamhaus\'s list',
             ],
 
-            'blacklisted:tiscali.it' => [
+            self::CATEGORY_BLACKLISTED . ':tiscali.it' => [
 
                 '421 .+? ESMTP - Too many invalid recipients from this IP',
                 '554 .+? ESMTP - Too much Spam from this IP',
             ],
 
-            'blacklisted:alice.it' => [
+            self::CATEGORY_BLACKLISTED . ':alice.it' => [
 
                 '554 Too many unknown RCPT TO addresses from host',
                 '550 mail not accepted from blacklisted IP address',
             ],
 
-            'blockedcontent' => [
+            self::CATEGORY_BLOCKED_CONTENT => [
 
                 '550 Message refused by spam filter',
                 '554 [^\s]+ A problem occurred',
@@ -578,7 +578,7 @@ class BounceClassifier implements IBounceClassifier
                 '554 client\'s country is banned',
             ],
 
-            'mailloop' => [
+            self::CATEGORY_LOOP_ERROR => [
                 '554 5.4.14 Hop count exceeded - possible mail loop',
                 'routing loop detected',
                 ': mail for [^\s]+ loops back to myself',
@@ -587,7 +587,7 @@ class BounceClassifier implements IBounceClassifier
                 'SMTP; Hop count exceeded - possible mail loop',
             ],
 
-            'remoteconfigerror' => [
+            self::CATEGORY_CONFIG_ERROR => [
                 '550 Sender IP reverse lookup rejected',
                 '474 [^\s]+ no DNS A-data returned',
                 'SMTP server not available if you do not have a reverse dns mapping',
@@ -643,7 +643,7 @@ class BounceClassifier implements IBounceClassifier
                 '550 5.7.1 Forged HELO hostname detected',
             ],
 
-            'overquota' => [
+            self::CATEGORY_OVERQUOTA => [
 
                 'MapiExceptionShutoffQuotaExceeded',
                 '\d52 \d.2.2 Over quota',
@@ -763,7 +763,7 @@ class BounceClassifier implements IBounceClassifier
 
         self::TYPE_IGNORE => [
 
-            'autoanswer' => [
+            self::CATEGORY_AUTOANSWER => [
 
                 'This is an automatically generated Delivery Status Notification. THIS IS A WARNING MESSAGE ONLY. YOU DO NOT NEED TO RESEND YOUR MESSAGE.',
                 'This is a warning message only',
@@ -878,6 +878,7 @@ class BounceClassifier implements IBounceClassifier
             preg_match('!^Date: (.+)!mi', $emailHeaders, $date)
                 ? date('Y-m-d H:i:s', strtotime($date[1]))
                 : 'can\'t_get_date';
+
         $subject = $this->getSubject($emailHeaders);
         $fromEmail = $this->getEmailFromHeaders('From', $emailHeaders);
 
@@ -886,16 +887,30 @@ class BounceClassifier implements IBounceClassifier
             && preg_match('!Content-Type: message/feedback-report\s+?feedback-type: abuse(?<innerLetter>.+)!is', $emailBody, $m)
             && preg_match('!^To: .+?<(?<email>.+?)>!mi', $m['innerLetter'], $to)
         ) {
-            return $this->logAndReturn([$to['email']], self::TYPE_SOFT, 'fbl', $fbl[0]);
+            return $this->logAndReturn(
+                [$to['email']],
+                self::TYPE_SOFT,
+                self::CATEGORY_FEEDBACK_LOOP,
+                $fbl[0]
+            );
         }
 
         if (preg_match('!^\s*?Report Domain:\s*?(?<domain>[^\s]+?);?\s*?Submitter:\s*?(?<submitter>[^\s]+);?\s*?!is', $subject, $m)) {
             $submitter = trim($m['submitter'], ' ;');
-            return $this->logAndReturn([$fromEmail], self::TYPE_IGNORE, 'dmarc_report', "dmarc report for {$m['domain']} from {$submitter}");
+            return $this->logAndReturn(
+                [$fromEmail],
+                self::TYPE_IGNORE,
+                self::CATEGORY_DMARC_REPORT,
+                "dmarc report for {$m['domain']} from {$submitter}"
+            );
         }
 
         if (preg_match('!^reading confirmation receipt!i', $subject)) {
-            return $this->logAndReturn([$fromEmail], self::TYPE_IGNORE, 'read_confirmation');
+            return $this->logAndReturn(
+                [$fromEmail],
+                self::TYPE_IGNORE,
+                self::CATEGORY_READ_CONFIRMATION
+            );
         }
 
         if (
@@ -903,7 +918,12 @@ class BounceClassifier implements IBounceClassifier
             && preg_match('!^reply-to: (?<email>.+)\s*$!mi', $emailHeaders, $replyTo)
             && ($replyTo['email'] == "{$xAutoReply['pfx']}.autoreply@{$xAutoReply['domain']}")
         ) {
-            return $this->logAndReturn([$xAutoReply['email']], self::TYPE_IGNORE, 'autoreply', $xAutoReply[0]);
+            return $this->logAndReturn(
+                [$xAutoReply['email']],
+                self::TYPE_IGNORE,
+                self::CATEGORY_AUTOANSWER,
+                $xAutoReply[0]
+            );
         }
 
         if (
@@ -917,11 +937,21 @@ class BounceClassifier implements IBounceClassifier
             $from = isset($xAutoReplyFrom) ? $xAutoReplyFrom['email'] : $fromEmail;
             $ar = trim($ar[0]);
             $ar = trim(isset($asr) ? "{$ar} & {$asr[0]}" : $ar);
-            return $this->logAndReturn([$from], self::TYPE_IGNORE, 'autoreply', $ar);
+            return $this->logAndReturn(
+                [$from],
+                self::TYPE_IGNORE,
+                self::CATEGORY_AUTOANSWER,
+                $ar
+            );
         }
 
         if (preg_match('!^Return-Path: <auto-answer@i.ua>!mi', $emailHeaders, $m)) {
-            return $this->logAndReturn([$fromEmail], self::TYPE_IGNORE, 'autoreply', $m[0]);
+            return $this->logAndReturn(
+                [$fromEmail],
+                self::TYPE_IGNORE,
+                self::CATEGORY_AUTOANSWER,
+                $m[0]
+            );
         }
 
         $emails = $this->extractEmails($emailBody);

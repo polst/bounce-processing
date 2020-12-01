@@ -1,6 +1,6 @@
 {
   "type": "library",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "name": "vda/bounce-processing",
   "description": "bounce email classification tools",
   "config": {

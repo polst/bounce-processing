@@ -874,11 +874,6 @@ class BounceClassifier implements IBounceClassifier
 
     public function classifyBounce(string $emailHeaders, string $emailBody): array
     {
-        $date =
-            preg_match('!^Date: (.+)!mi', $emailHeaders, $date)
-                ? date('Y-m-d H:i:s', strtotime($date[1]))
-                : 'can\'t_get_date';
-
         $subject = $this->getSubject($emailHeaders);
         $fromEmail = $this->getEmailFromHeaders('From', $emailHeaders);
 
@@ -974,7 +969,7 @@ class BounceClassifier implements IBounceClassifier
         }
 
         $this->logger->debug('Unable to classify bounce', [
-            'date'    => $date,
+            'date'    => $this->getDate($emailHeaders) ?? 'can\'t_get_date',
             'from'    => $fromEmail,
             'subject' => $subject,
             'body'    => $emailBody,
@@ -1049,7 +1044,7 @@ class BounceClassifier implements IBounceClassifier
         return array_diff(array_keys($res), $this->excludeEmails);
     }
 
-    public function getSubject(string $headers): string
+    public static function getSubject(string $headers): string
     {
         $subject = '';
         if (preg_match('![\r\n]\s*Subject: (?<subject>.+?)(?=(\r?\n[^\r\n]+:|\r?\n\r?\n))!is', $headers, $m)) {
@@ -1060,12 +1055,19 @@ class BounceClassifier implements IBounceClassifier
         return preg_replace('!\s+!', ' ', $subject);
     }
 
-    public function getEmailFromHeaders(string $type, string $headers): ?string
+    public static function getDate(string $headers): ?string
+    {
+        return preg_match('!^Date: (.+)!mi', $headers, $date)
+            ? date('Y-m-d H:i:s', strtotime($date[1]))
+            : null;
+    }
+
+    public static function getEmailFromHeaders(string $type, string $headers): ?string
     {
         if (preg_match("![\r\n]\s*{$type}:\s*.*?<?(?<email>([a-z\d_]|[a-z\d_][a-z\d._\-]*[a-z\d_\-])@([a-z\d][a-z\d\-]*\.)+[a-z]{2,})>?!is", $headers, $m)) {
             return $m['email'];
         }
 
-        return false;
+        return null;
     }
 }

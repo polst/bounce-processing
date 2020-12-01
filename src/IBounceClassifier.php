@@ -39,7 +39,9 @@ interface IBounceClassifier
      */
     function classifyBounce(string $emailHeaders, string $emailBody): array;
 
-    function getSubject(string $headers): string;
+    static function getSubject(string $headers): string;
 
-    function getEmailFromHeaders(string $type, string $headers): ?string;
+    static function getDate(string $headers): ?string;
+
+    static function getEmailFromHeaders(string $type, string $headers): ?string;
 }

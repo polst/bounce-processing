@@ -45,6 +45,11 @@ class BounceClassifier implements IBounceClassifier
                 '55\d:? Recipient address rejected: User unknown',
                 '5\d\d [^\s]+: Recipient address rejected: User unknown in local recipient table',
                 '5\d\d [^\s]+: Recipient address rejected: User unknown in virtual mailbox table',
+                '5\d\d 5.\d.\d [^\s]+: Recipient address rejected: User unknown',
+                '5\d\d 5.\d.\d [^\s]+: Recipient address rejected: Recipient not found',
+                '5\d\d 5.\d.\d [^\s]+: Recipient address rejected: Address does not exist',
+                '5\d\d 5.\d.\d [^\s]+ User doesn\'t exist',
+                '554 RCPT \([^\s]+\) dosn\'t exist',
                 '540 5.7.1 [^\s]+ Recipient address rejected: Account deleted by user',
                 '550 5.1.1 Recipient address rejected: User unknown',
                 '55\d(\s+|-)5\.\d\.\d [^\s]+: Recipient address rejected',
@@ -185,6 +190,7 @@ class BounceClassifier implements IBounceClassifier
                 '550 5.1.1 <[^\s]+> invalid address',
                 '5.1.0 - Unknown address error',
                 '501 Syntax error in parameters or arguments tnmpmscs',
+                '550 LTD BeGet: user not found',
             ],
 
             self::CATEGORY_INACTIVE_EMAIL => [
@@ -217,6 +223,7 @@ class BounceClassifier implements IBounceClassifier
                 '5.2.1 Diagnostic-Code: x-unix; This address no longer accepts mail',
                 'Sorry, your message to [^\s]+ cannot be delivered. This mailbox is disabled',
                 'Receiver do\'nt want your email. Are You shure you have sent your Mail to the right adress',
+                '550 Mail to [^\s]+ has been suspended',
             ],
 
             self::CATEGORY_INVALID_EMAIL => [
@@ -236,6 +243,7 @@ class BounceClassifier implements IBounceClassifier
                 '550 RCPT address has non-existant domain [^\s]+',
                 '550 Domain [^\s]+ has outgoing email disabled',
                 '550 sorry, this mailbox is currently disabled, try again',
+                '550 This domain is not in use and does not accept mail',
             ],
 
             self::CATEGORY_RELAY_ERROR => [
@@ -576,6 +584,7 @@ class BounceClassifier implements IBounceClassifier
                 '550-Your message to <[^\s]+> was classified as SPAM',
                 '554 We have reasons to believe this mail is SPAM',
                 '554 client\'s country is banned',
+                '554 Message refused',
             ],
 
             self::CATEGORY_LOOP_ERROR => [

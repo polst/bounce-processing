@@ -2,7 +2,7 @@
 
 namespace Vda\BounceProcessing;
 
-use Vda\Log\ILogService;
+// use Vda\Log\ILogService;
 
 class BounceClassifier implements IBounceClassifier
 {
@@ -13,7 +13,7 @@ class BounceClassifier implements IBounceClassifier
         self::TYPE_IGNORE   => 'ignore',
     ];
 
-    private $logger;
+    // private $logger;
     private $excludeEmails;     // initialized in constructor
     private $bounceRules;       // prepared in constructor
 
@@ -324,7 +324,7 @@ class BounceClassifier implements IBounceClassifier
 
                 // aol
                 'refused to talk to me: 421 4.7.1 : \(DYN:T1\)',
-                
+
                 // google
                 '550-5.2.1 The user you are trying to contact is receiving mail at a rate that',
 
@@ -357,9 +357,9 @@ class BounceClassifier implements IBounceClassifier
                 '554 Rejected due to the sending MTA\'s poor reputation. Please refer [^\s]+.',
 
                 // common spamlists
-                '(s5h|barracudacentral|spamcop|blacklist.woody|bogons.cymru|abuseat|abuse|wpbl|uceprotect|dnsbl.dronebl|'.
-                    'sorbs|spfbl|duinv.aupads|spamrats|backscatterer|dnsbl.manitu|orvedb.aupads|spamhaus|bl.gweep|psbl.surriel|'.
-                    'relays.nether|dnsbl.anonmails|spambot.bls.digibase|spamrbl.imp.ch|ubl.lashback|ubl.unsubscore|virus.rbl|'.
+                '(s5h|barracudacentral|spamcop|blacklist.woody|bogons.cymru|abuseat|abuse|wpbl|uceprotect|dnsbl.dronebl|' .
+                    'sorbs|spfbl|duinv.aupads|spamrats|backscatterer|dnsbl.manitu|orvedb.aupads|spamhaus|bl.gweep|psbl.surriel|' .
+                    'relays.nether|dnsbl.anonmails|spambot.bls.digibase|spamrbl.imp.ch|ubl.lashback|ubl.unsubscore|virus.rbl|' .
                     'wormrbl.imp|z.mailspike|csi.cloudmark|urbl.hostedemail)\.(net|com|info|ch|org|ca|jp|de)',
 
                 '553 5.3.0 [^\s]+ DNSBL:ATTRBL 521',
@@ -530,8 +530,8 @@ class BounceClassifier implements IBounceClassifier
                 'blocked by filter rules',
                 'Mail rejected by Windows Live Hotmail for policy reasons',
                 '554 5.7.1 [^\s]+: Sender address rejected: LIST_ACCESS_FROM',
-                '554 5.7.1 Your mail could not be delivered because the recipient is only accepting mail from specific email addresses|'.
-                '550 5.7.1 Policy rejection on the target address',
+                '554 5.7.1 Your mail could not be delivered because the recipient is only accepting mail from specific email addresses|' .
+                    '550 5.7.1 Policy rejection on the target address',
                 '550 Rule imposed mailbox access for',
                 'Message cannot be accepted, content filter rejection',
                 'Message Denied: Restricted attachment',
@@ -874,9 +874,10 @@ class BounceClassifier implements IBounceClassifier
         ],
     ];
 
-    public function __construct(ILogService $logService, array $excludeEmails = [])
+    public function __construct(array $excludeEmails = [])
+    // public function __construct(ILogService $logService, array $excludeEmails = [])
     {
-        $this->logger = $logService->getLogger(self::class);
+        // $this->logger = $logService->getLogger(self::class);
         $this->excludeEmails = $excludeEmails;
         $this->prepareBounceRules();
     }
@@ -971,18 +972,18 @@ class BounceClassifier implements IBounceClassifier
                         return $this->logAndReturn($emails, $bounceType, $categoryName, $pattern, $m);
                     }
                     if ($result === false) {
-                        $this->logger->error("Regexp error in '{$pattern}'");
+                        // $this->logger->error("Regexp error in '{$pattern}'");
                     }
                 }
             }
         }
 
-        $this->logger->debug('Unable to classify bounce', [
-            'date'    => $this->getDate($emailHeaders) ?? 'can\'t_get_date',
-            'from'    => $fromEmail,
-            'subject' => $subject,
-            'body'    => $emailBody,
-        ]);
+        // $this->logger->debug('Unable to classify bounce', [
+        //     'date'    => $this->getDate($emailHeaders) ?? 'can\'t_get_date',
+        //     'from'    => $fromEmail,
+        //     'subject' => $subject,
+        //     'body'    => $emailBody,
+        // ]);
 
         return [
             'emails'     => [$fromEmail],
@@ -993,7 +994,7 @@ class BounceClassifier implements IBounceClassifier
     protected function logAndReturn($emails, $bounceType, $categoryName, $pattern = false, $matches = false)
     {
         $source = null;
-        if(strpos($categoryName, ':')) {
+        if (strpos($categoryName, ':')) {
             list($categoryName, $source) = explode(':', $categoryName, 2);
         }
 
@@ -1015,7 +1016,7 @@ class BounceClassifier implements IBounceClassifier
             $result['reason'] = preg_replace('!\s+!', ' ', $matches[0]);
         }
 
-        $this->logger->info('Bounce classified', $result);
+        // $this->logger->info('Bounce classified', $result);
 
         $result['emails'] = $emails;
         $result['bounceType'] = $bounceType;
